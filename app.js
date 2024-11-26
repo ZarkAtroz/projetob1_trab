@@ -2,6 +2,8 @@ var express = require('express');//Para as rotas
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors');//Para permitir requisições de outros domínios
+
 
 // Importando o Sequelize e o modelo User
 var sequelize = require('./models').sequelize;
@@ -30,11 +32,14 @@ app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/payment', paymentRoutes);
 
+// Habilitando o CORS
+app.use(cors());
+
 // Sincronizando o Sequelize (em dev)
 const db = require('./models');
 
 async function applyDataStructure(){
-    await db.sequelize.sync({alter: true});
+    await db.sequelize.sync();
 }
 
 app.get('/test', (req, res) => {
@@ -45,7 +50,7 @@ app.get('/test', (req, res) => {
 applyDataStructure();
 
 // Iniciar o servidor com o app.js na porta 8080
-var port = 8080;
+var port = 5000;
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
