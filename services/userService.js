@@ -58,29 +58,29 @@ class UserService{
     }
     
     async login(email, password) {
+        console.log('Tentando logar com:', email); // Adicionando log
+
         try {
-            const User = await this.User.findOne({
-                where: { email }
-            });
-    
-            // Verificar se o usuário existe
+            const User = await this.User.findOne({ where: { email } });
+
             if (!User) {
-                throw new Error('Credenciais inválidas.');
+                console.error('Usuário não encontrado:', email);
+                throw new Error('Usuário não encontrado.');
             }
-    
-            // Comparar a senha
+
             const isPasswordValid = await bcrypt.compare(password, User.password);
             if (!isPasswordValid) {
-                throw new Error('Credenciais inválidas.');
+                console.error('Senha inválida para o usuário:', email);
+                throw new Error('Senha inválida.');
             }
-    
-            // Gerar o token do usuário
+
             const token = await auth.generateToken(User);
             User.dataValues.Token = token;
             User.dataValues.password = '';
-    
+
             return User;
         } catch (error) {
+            console.error('Erro ao processar login:', error.message);
             throw error;
         }
     }

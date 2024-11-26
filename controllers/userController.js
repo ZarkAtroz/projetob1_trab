@@ -9,7 +9,7 @@ class UserController{
         try {
             const newUser = await this.userService.create(email, data_nasc, password);
             if (newUser) {
-                res.status(201).json(newUser); // Retorna 201 Created
+                res.status(201).json(newUser);
             } else {
                 res.status(400).json({ error: 'Não foi possível criar o usuário.' });
             }
@@ -17,6 +17,7 @@ class UserController{
             if (error.message === 'O e-mail já está registrado.') {
                 res.status(409).json({ error: error.message });
             } else {
+                console.error('Erro ao criar usuário:', error.message);
                 res.status(500).json({ error: 'Ocorreu um erro ao gravar o novo usuário.' });
             }
         }
@@ -51,17 +52,17 @@ class UserController{
     
     async login(req, res) {
         const { email, password } = req.body;
+        console.log('Dados recebidos no login:', req.body); // Adicionando log
+
         try {
             const user = await this.userService.login(email, password);
-            if (user) {
-                res.status(200).json(user);
-            } else {
-                res.status(401).json({ error: 'Credenciais inválidas.' });
-            }
+            res.status(200).json(user);
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao logar o usuário.' });
+            console.error('Erro ao logar:', error.message); // Log do erro
+            res.status(400).json({ error: error.message }); // Retorna mensagem de erro específica
         }
     }
+
     
 }
 
