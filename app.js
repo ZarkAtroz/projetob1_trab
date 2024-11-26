@@ -2,8 +2,6 @@ var express = require('express');//Para as rotas
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var cors = require('cors');//Para permitir requisições de outros domínios
-
 
 // Importando o Sequelize e o modelo User
 var sequelize = require('./models').sequelize;
@@ -16,11 +14,14 @@ const productRoutes = require('./routes/product');
 const cartRoutes = require('./routes/cart');
 const paymentRoutes = require('./routes/payment');
 
+// Importando o CORS
+const cors = require('cors');
+
 var app = express();//Ativa a API com o Express
 
 app.use(logger('dev'));
 app.use(express.json()); //Permite o uso de JSon
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
