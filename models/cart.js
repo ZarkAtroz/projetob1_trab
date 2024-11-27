@@ -1,30 +1,56 @@
 module.exports = (sequelize, DataTypes) => {
-    const Cart = sequelize.define('Cart', {
+  const Cart = sequelize.define('Cart', {
       id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+          type: DataTypes.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
       },
       userId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+              model: 'Users', // Tabela associada
+              key: 'id',
+          },
+          onDelete: 'CASCADE',
       },
-    });
-  
-    Cart.associate = (models) => {
-      // Associação com CartItem (um carrinho pode ter muitos itens)
+  });
+
+  // Associações
+  Cart.associate = (models) => {
       Cart.hasMany(models.CartItem, {
-        foreignKey: 'cartId',
-        as: 'itens', // Referência usada nas queries com include
+          foreignKey: 'cartId',
+          as: 'itens',
       });
-  
-      // Se necessário, associação com o modelo User
       Cart.belongsTo(models.User, {
-        foreignKey: 'userId',
-        as: 'user',
+          foreignKey: 'userId',
+          as: 'user',
       });
-    };
-  
-    return Cart;
   };
-  
+
+  // Métodos customizados
+  Cart.addItem = async function (cartId, productId, quantidade) {
+      const cartItem = await sequelize.models.CartItem.findOne({ where: { cartId, productId } });
+      if (cartItem) {
+          cartItem.quantidade += quantidade;
+          cartItem.precoTotal = cartItem.quantidade * (await sequelize.models.Product.findByPk(productId)).preco;
+          await cartItem.save();
+      } else {
+          await sequelize.models.CartItem.create({ cartId, productId, quantidade });
+      }
+  };
+
+  Cart.removeItem = async function (cartId, productId) {
+      const cartItem = await sequelize.models.CartItem.findOne({ where: { cartId, productId } });
+      if (cartItem) {
+          const product = await sequelize.models.Product.findByPk(productId);
+          if (product) {
+              product.estoque += cartItem.quantidade;
+              await product.save();
+          }
+          await cartItem.destroy();
+      }
+  };
+
+  return Cart;
+};

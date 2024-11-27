@@ -40,4 +40,14 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// Sincronização do banco de dados para garantir que todas as tabelas estejam atualizadas
+(async () => {
+  try {
+    await sequelize.sync({ alter: true }); // Usa 'alter' para evitar perda de dados e garantir que as mudanças no modelo sejam aplicadas
+    console.log('Banco de dados sincronizado com sucesso.');
+  } catch (error) {
+    console.error('Erro ao sincronizar o banco de dados:', error);
+  }
+})();
+
 module.exports = db;

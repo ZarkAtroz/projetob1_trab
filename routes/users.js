@@ -1,40 +1,26 @@
-// Importar dependências
-var express = require('express');
-var router = express.Router();
-const auth = require('../auth');
+const express = require('express');
+const { body } = require('express-validator');
+const router = express.Router();
+const userController = require('../controllers/userController');
 
-// Importar UserService e UserController
-const db = require('../models');
-const UserService = require('../services/userService');
-const UserController = require('../controllers/userController');
+// Rota para criar um novo usuário
+router.post('/register', 
+  body('email').isEmail().withMessage('E-mail inválido'),
+  body('password').isLength({ min: 6 }).withMessage('A senha deve ter no mínimo 6 caracteres'),
+  body('nome').notEmpty().withMessage('Nome é obrigatório'),
+  userController.createUser
+);
 
-// Instanciar UserService e UserController
-const userService = new UserService(db.User);
-const userController = new UserController(userService);
+// Rota para login do usuário (alteração aqui)
+router.post('/login', 
+  body('email').isEmail().withMessage('E-mail inválido'),
+  body('password').notEmpty().withMessage('Senha é obrigatória'),
+  userController.loginUser // Use loginUser em vez de validatePassword
+);
 
-// Rota principal do módulo de usuários
-router.get('/', function(req, res) {
-    res.send('Módulo de usuários rodando.');
-});
-
-// Rota para login
-router.post('/login', async (req, res) => {
-    userController.login(req, res);
-});
-
-// Rota para registrar novo usuário
-router.post('/novouser', async (req, res) => {
-    userController.createUser(req, res);
-});
-
-// Rota para retornar todos os usuários
-router.get('/allusers', auth.verifyToken, async (req, res) => {
-    userController.findAllUsers(req, res);
-});
-
-// Rota para retornar um usuário por ID
-router.get('/:id', auth.verifyToken, async (req, res) => {
-    userController.findUserByPk(req, res);
-});
+// Outras rotas, como listar todos os usuários, atualizar, deletar etc.
+router.get('/', userController.findAllUsers);
+router.put('/:id', userController.updateUser);
+router.delete('/:id', userController.deleteUser);
 
 module.exports = router;

@@ -1,8 +1,14 @@
 const cartService = require('../services/cartService');
+const { validationResult } = require('express-validator');
 
 module.exports = {
-  // Adiciona um produto ao carrinho
+  // Adicionar um produto ao carrinho
   async addToCart(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const { productId, quantidade } = req.body;
     const userId = req.user.id;
 
@@ -10,23 +16,28 @@ module.exports = {
       const cartItem = await cartService.addToCart(userId, productId, quantidade);
       res.status(201).json(cartItem);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error('Erro ao adicionar ao carrinho:', error.message);
+      res.status(500).json({ error: error.message || 'Erro interno ao adicionar ao carrinho.' });
     }
   },
 
-  // Remove um item do carrinho
+  // Remover um item do carrinho
   async removeFromCart(req, res) {
     const { id } = req.params;
 
     try {
       const result = await cartService.removeFromCart(id);
-      res.status(200).json(result);
+      if (!result) {
+        return res.status(404).json({ error: 'Item não encontrado no carrinho.' });
+      }
+      res.status(200).json({ message: 'Item removido do carrinho com sucesso.' });
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error('Erro ao remover do carrinho:', error.message);
+      res.status(500).json({ error: error.message || 'Erro interno ao remover do carrinho.' });
     }
   },
 
-  // Visualiza o carrinho de compras
+  // Visualizar o carrinho
   async getCart(req, res) {
     const userId = req.user.id;
 
@@ -34,7 +45,8 @@ module.exports = {
       const cart = await cartService.getCart(userId);
       res.status(200).json(cart);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error('Erro ao visualizar o carrinho:', error.message);
+      res.status(500).json({ error: error.message || 'Erro interno ao visualizar o carrinho.' });
     }
   },
 };
