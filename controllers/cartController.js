@@ -23,19 +23,20 @@ module.exports = {
 
   // Remover um item do carrinho
   async removeFromCart(req, res) {
-    const { id } = req.params;
+  const { id: productId } = req.params; // Supondo que id seja o productId
+  const userId = req.user.id;
 
-    try {
-      const result = await cartService.removeFromCart(id);
-      if (!result) {
-        return res.status(404).json({ error: 'Item não encontrado no carrinho.' });
-      }
-      res.status(200).json({ message: 'Item removido do carrinho com sucesso.' });
-    } catch (error) {
-      console.error('Erro ao remover do carrinho:', error.message);
-      res.status(500).json({ error: error.message || 'Erro interno ao remover do carrinho.' });
+  try {
+    const result = await cartService.removeFromCart(userId, productId);
+    if (!result) {
+      return res.status(404).json({ error: 'Item não encontrado no carrinho.' });
     }
-  },
+    res.status(200).json({ message: 'Item removido do carrinho com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao remover do carrinho:', error.message);
+    res.status(500).json({ error: error.message || 'Erro interno ao remover do carrinho.' });
+  }
+},
 
   // Visualizar o carrinho
   async getCart(req, res) {
