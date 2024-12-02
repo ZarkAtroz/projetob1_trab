@@ -17,6 +17,7 @@ router.use('/products', productRoutes);
 router.use('/cart', cartRoutes);
 router.use('/users', userRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/suppliers', require('./supplier'));
 
 // Adicionar rota para deletar todos os produtos (usada para desenvolvimento/testes)
 router.delete('/products/all', async (req, res) => {

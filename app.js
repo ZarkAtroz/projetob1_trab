@@ -10,6 +10,7 @@ const usersRouter = require('./routes/users');
 const productRoutes = require('./routes/product');
 const cartRoutes = require('./routes/cart');
 const paymentRoutes = require('./routes/payment');
+const supplierRoutes = require('./routes/supplier');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/users', usersRouter);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/payment', paymentRoutes);
+app.use('/suppliers', supplierRoutes);
 
 // Sincronização do banco de dados (em desenvolvimento)
 const db = require('./models');
